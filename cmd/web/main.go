@@ -4,7 +4,7 @@ import (
 	"log"
 	"mimisbrunnr/internal/data"
 
-	//"mimisbrunnr/internal/user"
+	"mimisbrunnr/internal/user"
 	"net/http"
 )
 
@@ -16,7 +16,7 @@ func main() {
 
 	db := data.GetDB()
 
-	db.AutoMigrate(&User{})
+	db.AutoMigrate(&user.User{})
 
 	srv := http.Server{
 		Addr:    ":8000",
