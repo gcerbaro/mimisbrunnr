@@ -24,9 +24,14 @@ export class UserController {
         return user;
     } */
 
+    @Get()
+    async getAll(){
+        return this.userService.getAll()
+    }
+
     @Get(':id')
     async getOne(@Param('id', ParseUUIDPipe) id: string) {
-        return this.userService.getOne(id);
+        return this.userService.getById(id);
     }
 
     /* @Patch('/me')

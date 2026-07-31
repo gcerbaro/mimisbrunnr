@@ -19,7 +19,7 @@ export class User extends CoreEntity {
     @Column({ type: 'varchar', length: 60, select: false })
     password: string;
 
-    @Column({ type: 'timestamp' })
+    @Column({ type: 'date' })
     birthday: Date;
 
     @Column({ type: 'varchar', length: 255, nullable: true })
@@ -29,7 +29,7 @@ export class User extends CoreEntity {
     session: string;
 
     @Column({
-        type: 'enum',
+        type: 'simple-enum',
         enum: Role,
         default: Role.USER
     })

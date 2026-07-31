@@ -4,8 +4,8 @@ import {IsNotEmpty, IsOptional, ValidateIf} from 'class-validator';
 import { ApiProperty, OmitType } from '@nestjs/swagger';
 
 export class UserUpdateDTO extends PartialType(
-	OmitType(UserCreateDTO, ['name', 'email', 'birthday'])){
-	
+	OmitType(UserCreateDTO, ['name', 'email', 'birthday'])
+){	
 	@IsOptional()
 	profilePicture: string;
 

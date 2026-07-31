@@ -101,7 +101,7 @@ export class UserService {
 
         const oldRole = user.role;
 
-        await User.merge(user, {
+        User.merge(user, {
             ...updates,
         });
 
@@ -111,11 +111,15 @@ export class UserService {
         return user;
     }
 
-    async getOne(userId: User['id']): Promise<User>{
+    async getById(userId: User['id']): Promise<User>{
         return await User.findOneOrFail({
             where: {
                 id: userId,
             },
         });
+    }
+
+    async getAll(): Promise<User[]>{
+        return await User.find();
     }
 }
