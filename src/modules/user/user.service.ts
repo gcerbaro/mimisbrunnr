@@ -6,10 +6,10 @@ import { UserUpdateDTO } from './dtos/update-user.dto';
 import { InvalidCredentialsError } from './errors/invalid-credentials.error';
 import { UserInternalUpdateDto } from './dtos/user-internal-updates.dto';
 
-const ROLE_NAME_MAP = new Map<Role, string>([
+/* const ROLE_NAME_MAP = new Map<Role, string>([
     [Role.ADMIN, 'Admin'],
     [Role.USER, 'User']
-]);
+]); */
 
 @Injectable()
 export class UserService {
@@ -122,4 +122,6 @@ export class UserService {
     async getAll(): Promise<User[]>{
         return await User.find();
     }
+
+    async login(){}
 }

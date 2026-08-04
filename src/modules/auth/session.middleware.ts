@@ -6,7 +6,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import {Session} from './model/session.entity';
 //import {TypeormStore} from 'connect-typeorm';
 import type { Repository } from "typeorm";
-//import * as session from 'express-session';
+import * as session from 'express-session';
 import * as ms from 'ms';
 
 @Injectable()
@@ -29,7 +29,8 @@ export class SessionMiddleware implements NestMiddleware {
         //secure: IS_PROD,
         signed: true,
       },
-      store: new TypeormStore().connect(sessionRepository),
+      //seek more recent alternative
+      //store: new TypeormStore().connect(sessionRepository),
     });
   }
 

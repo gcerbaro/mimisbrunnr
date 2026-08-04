@@ -1,8 +1,7 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { Reflector } from "@nestjs/core";
-import { Request } from '@nestjs/common';
+import { Request } from 'express';
 import { Role, User } from '../user/model/user.entity';
-import { isArray } from 'class-validator';
 
 /**
  * Enable/disable authentication for a specific route.
@@ -30,7 +29,7 @@ Role[]
 });
 
 
-/* export const LoggedUser = createParamDecorator(
+export const LoggedUser = createParamDecorator(
   (prop: keyof User | undefined, ctx: ExecutionContext) => {
     const req = ctx.switchToHttp().getRequest<Request>();
     const user = req.auth?.user ?? null;
@@ -41,4 +40,4 @@ Role[]
 
     return prop ? user[prop] : user;
   },
-); */
+);
