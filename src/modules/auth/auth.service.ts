@@ -5,6 +5,7 @@ import { EventEmitter } from "stream";
 import { User } from "../user/model/user.entity";
 import { Config } from "../../constants/config";
 import { Request, Response } from 'express';
+import { IS_PROD } from "../../constants/env";
 
 @Injectable()
 export class AuthService {
@@ -31,7 +32,7 @@ export class AuthService {
             signed: cookie.signed,
             sameSite: cookie.sameSite,
             maxAge: cookie.maxAge,
-            //secure: IS_PROD,
+            secure: IS_PROD,
             //must be accessible to the client-side for frontend authentication
             httpOnly: false,
         });

@@ -1,5 +1,5 @@
 import { Config } from '../../constants/config';
-//import { COOKIE_SECRET, IS_PROD } from '../../constants/env';
+import { COOKIE_SECRET, IS_PROD } from '../../constants/env';
 import {NextFunction, Request, RequestHandler, Response} from 'express';
 import { Injectable, NestMiddleware } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -17,7 +17,7 @@ export class SessionMiddleware implements NestMiddleware {
     @InjectRepository(Session) sessionRepository: Repository<Session>,
   ) {
     this.session = session({
-      //secret: COOKIE_SECRET,
+      secret: COOKIE_SECRET,
       name: Config.cookies.session.name,
       resave: false,
       saveUninitialized: false,
@@ -26,7 +26,7 @@ export class SessionMiddleware implements NestMiddleware {
         maxAge: ms('1d'),
         httpOnly: true,
         sameSite: 'lax',
-        //secure: IS_PROD,
+        secure: IS_PROD,
         signed: true,
       },
       //seek more recent alternative

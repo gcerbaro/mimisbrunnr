@@ -72,5 +72,33 @@ export class User extends CoreEntity {
         return await hash(pwd);
     }
 
+    static async findByEmailAndPassword(email: string,
+        password: string,
+        includeDeleted=false):Promise<User | null>{
+        let qb = this.createQueryBuilder('user');
+
+        if(includeDeleted){
+            qb.withDeleted();
+        }
+
+        const user = await qb
+        .select('*')
+        .where('user.email = :email', {email})
+        .getRawOne()
+        .then((data: object | null) => data ? User.create({...data}): null);
+
+        if(!user){
+            return null;
+        }
+
+        if(!(await this.comparePassword(password, user.password))){
+            return null;
+        }
+
+        return User.create({
+            ...user,
+            password: undefined,
+        });
+    }
 
 }

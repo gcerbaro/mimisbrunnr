@@ -2,7 +2,7 @@ import { Body, Controller, Delete, HttpCode, HttpStatus, Post, Req, Res } from "
 import { AuthService } from "./auth.service";
 import { Public } from "./auth.decorator";
 import { UserLoginDto } from "./dtos/user-login.dto";
-import { Response, Request } from 'express';
+import type { Response, Request } from 'express';
 
 @Controller('auth')
 export class AuthController {

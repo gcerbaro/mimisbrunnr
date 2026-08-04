@@ -123,5 +123,17 @@ export class UserService {
         return await User.find();
     }
 
-    async login(){}
+    async login(email:string, password: string): Promise<User>{
+        this.logger.log('User login attempt');
+
+        const user = await User.findByEmailAndPassword(email, password, true);
+
+        if(!user){
+            throw new InvalidCredentialsError();
+        }
+
+        this.logger.log(`User ${user.id} logged in`);
+
+        return user;
+    }
 }

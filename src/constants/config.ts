@@ -1,12 +1,13 @@
+import { UID_COOKIE_NAME } from "./env";
 
 export const Config = {
   cookies: {
     session: {
       name: 'MIMISBRUNNR_SID',
     },
-/*     userId: {
+     userId: {
       name: UID_COOKIE_NAME,
-    },*/
+    },
   },
 /*   csrf: {
     headerName: CSRF_HEADER_NAME,

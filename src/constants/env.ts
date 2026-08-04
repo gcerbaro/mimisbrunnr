@@ -1,0 +1,14 @@
+export const PORT = parseInt(process.env.PORT ?? '3000', 10);
+export const NODE_ENV = process.env.NODE_ENV ?? 'development';
+export const IS_PROD = NODE_ENV === 'production';
+export const IS_DEV = NODE_ENV === 'development';
+export const IS_TEST = NODE_ENV === 'test';
+export const VERSION = process.env.VERSION;
+export const CORS_ORIGIN = process.env.CORS_ORIGIN || `http://localhost:${PORT}`;
+export const UID_COOKIE_NAME = "MIMISBRUNNR_UID";
+export const CSRF_HEADER_NAME = "x-csrf-token";
+export const FRONTEND_URL = process.env.FRONTEND_URL;
+
+export const SALT_ROUNDS = parseInt(process.env.SALT_ROUNDS || '10', 10);
+
+export const COOKIE_SECRET = process.env.COOKIE_SECRET;
