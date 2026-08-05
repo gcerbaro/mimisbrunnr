@@ -1,16 +1,17 @@
 import { Injectable } from "@nestjs/common";
 import { UserLoginDto } from "./dtos/user-login.dto";
 import { UserService } from "../user/user.service";
-import { EventEmitter } from "stream";
+import { EventEmitter2 } from "@nestjs/event-emitter";
 import { User } from "../user/model/user.entity";
 import { Config } from "../../constants/config";
 import { Request, Response } from 'express';
 import { IS_PROD } from "../../constants/env";
+import { ISessionEvent, SessionEvents } from "../../events/session";
 
 @Injectable()
 export class AuthService {
     constructor(private readonly userService: UserService,
-        private readonly eventEmitter: EventEmitter
+        private readonly eventEmitter: EventEmitter2
     ) { }
 
     async login(
@@ -40,7 +41,24 @@ export class AuthService {
         return user;
     }
 
-    async logout(req: Request, res: Response) {
-        return;
+    logout(req: Request, res: Response): Promise<void> {
+        const { session } = req;
+        const {
+            cookie: { ...cookieOpts },
+        } = session;
+
+        return new Promise<void>((resolve, reject) => {
+            session.regenerate((err: Error) => {
+                if (err) {
+                    return reject(err);
+                }
+                res.clearCookie(Config.cookies.userId.name, { path: cookieOpts.path });
+                resolve();
+            });
+        }).finally(() => {
+            this.eventEmitter.emit(SessionEvents.LOGOUT, {
+                sessionId: session.id,
+            } satisfies ISessionEvent<SessionEvents.LOGOUT>);
+        });
     }
 }

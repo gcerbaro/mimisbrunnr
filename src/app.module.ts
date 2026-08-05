@@ -2,6 +2,7 @@ import { ClassSerializerInterceptor, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './modules/user/user.module';
 import { APP_INTERCEPTOR } from '@nestjs/core';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
   imports: [
@@ -11,6 +12,7 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
       autoLoadEntities: true,
       synchronize: true, //Only for dev, switch to TypeORM migrations when ready for prod
     }),
+    EventEmitterModule.forRoot(),
     UserModule
   ],
   //controllers: [AppController],

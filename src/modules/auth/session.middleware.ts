@@ -6,7 +6,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import {Session} from './model/session.entity';
 //import {TypeormStore} from 'connect-typeorm';
 import type { Repository } from "typeorm";
-import * as session from 'express-session';
+import session from 'express-session';
 import * as ms from 'ms';
 
 @Injectable()
