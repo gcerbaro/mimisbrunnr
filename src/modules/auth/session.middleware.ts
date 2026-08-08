@@ -7,14 +7,14 @@ import {Session} from './model/session.entity';
 //import {TypeormStore} from 'connect-typeorm';
 import type { Repository } from "typeorm";
 import session from 'express-session';
-import * as ms from 'ms';
+import ms from 'ms';
 
 @Injectable()
 export class SessionMiddleware implements NestMiddleware {
   private readonly session: RequestHandler;
 
   constructor(
-    @InjectRepository(Session) sessionRepository: Repository<Session>,
+    //@InjectRepository(Session) sessionRepository: Repository<Session>,
   ) {
     this.session = session({
       secret: COOKIE_SECRET,

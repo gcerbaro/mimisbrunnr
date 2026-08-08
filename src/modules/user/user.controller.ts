@@ -5,7 +5,7 @@ import { UserDTO } from "./dtos/user.dto";
 import { UserUpdateDTO } from "./dtos/update-user.dto";
 import { Role, User } from "./model/user.entity";
 import { UserInternalUpdateDto } from "./dtos/user-internal-updates.dto";
-import { Public } from "../auth/auth.decorator";
+import { Authorize, LoggedUser, Public } from "../auth/auth.decorator";
 
 @Controller('users')
 export class UserController {
@@ -18,11 +18,11 @@ export class UserController {
         return this.userService.register(userDto);
     }
 
-    /* @Get('/me')
+    @Get('/me')
     @HttpCode(200)
     async getMe(@LoggedUser() user: User){
         return user;
-    } */
+    }
 
     @Get()
     async getAll(){
@@ -34,15 +34,15 @@ export class UserController {
         return this.userService.getById(id);
     }
 
-    /* @Patch('/me')
+    @Patch('/me')
     async updateMe(@LoggedUser() user: User, @Body() updates: UserUpdateDTO){
         return this.userService.update(user, updates);
-    } */
+    }
 
     @Patch(':id')
-    //@Authorize(Role.ADMIN)
+    @Authorize(Role.ADMIN)
     updateByAdmin(
-        //@LoggedUser()
+        @LoggedUser()
         admin: User,
         @Param('id', ParseUUIDPipe) userId: string,
         @Body() updateDto: UserInternalUpdateDto,

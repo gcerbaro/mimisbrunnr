@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './modules/user/user.module';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
@@ -13,7 +14,8 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
       synchronize: true, //Only for dev, switch to TypeORM migrations when ready for prod
     }),
     EventEmitterModule.forRoot(),
-    UserModule
+    UserModule,
+    AuthModule
   ],
   //controllers: [AppController],
   providers: [
