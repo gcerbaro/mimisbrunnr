@@ -25,9 +25,6 @@ export class User extends CoreEntity {
     @Column({ type: 'varchar', length: 255, nullable: true })
     profilePicture: string;
 
-    @Column({ type: 'varchar' })
-    session: string;
-
     @Column({
         type: 'simple-enum',
         enum: Role,

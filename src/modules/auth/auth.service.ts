@@ -23,10 +23,9 @@ export class AuthService {
         const { cookie } = session;
 
         const user = await this.userService.login(email, password);
-        session.userId = user.id;
         session.loginDate = new Date();
 
-        res.cookie(Config.cookies.userId.name, user.id, {
+        res.cookie(Config.cookies.userId.name, {
             path: cookie.path,
             domain: cookie.domain,
             expires: cookie.expires ?? undefined,
@@ -35,7 +34,7 @@ export class AuthService {
             maxAge: cookie.maxAge,
             secure: IS_PROD,
             //must be accessible to the client-side for frontend authentication
-            httpOnly: false,
+            httpOnly: true,
         });
 
         return user;
