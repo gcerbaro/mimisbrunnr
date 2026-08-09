@@ -1,4 +1,4 @@
-import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { User, Role } from './model/user.entity';
 import { UserCreateDTO } from './dtos/create-user.dto';
@@ -44,13 +44,13 @@ export class UserService {
         this.logger.log(`Updating user ${user.id}`);
 
         const {
-            password,
+            newPassword,
             currentPassword,
             ...userData
         } = updates
 
         //check current password
-        if (password) {
+        if (newPassword) {
             if (
                 !currentPassword ||
                 !(await user.comparePassword(currentPassword))
@@ -58,12 +58,14 @@ export class UserService {
                 this.logger.warn(`Invalid password confirmation of user ${user.id}`);
                 throw new InvalidCredentialsError();
             }
+        } else if(currentPassword){
+            throw new BadRequestException();
         }
 
         User.merge(user, {
             ...userData,
-            ...(password && {
-                password: await User.hashPassword(password),
+            ...(newPassword && {
+                password: await User.hashPassword(newPassword),
             }),
         });
 

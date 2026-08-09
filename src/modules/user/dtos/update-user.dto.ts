@@ -13,4 +13,8 @@ export class UserUpdateDTO extends PartialType(
 	@ValidateIf((dto: UserCreateDTO) => !!dto.password)
 	@ApiProperty({example: 'ABCdef123'})
 	currentPassword?: string;
+
+	@IsNotEmpty()
+	@ApiProperty({example: 'ABCdef123'})
+	newPassword: string;
 }
