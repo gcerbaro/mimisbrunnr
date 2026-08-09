@@ -91,7 +91,6 @@ export class User extends CoreEntity {
         if(!(await this.comparePassword(password, user.password))){
             return null;
         }
-
         return User.create({
             ...user,
             password: undefined,

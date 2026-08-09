@@ -25,6 +25,7 @@ export class UserController {
     }
 
     @Get()
+    @Public()
     async getAll(){
         return this.userService.getAll()
     }

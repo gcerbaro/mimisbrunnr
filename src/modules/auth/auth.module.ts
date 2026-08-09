@@ -1,4 +1,4 @@
-import { Module, Session } from "@nestjs/common";
+import { Module, Session, NestModule, MiddlewareConsumer } from "@nestjs/common";
 import { APP_GUARD } from "@nestjs/core";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { SessionMiddleware } from "./session.middleware";
@@ -21,4 +21,8 @@ import { AuthGuard } from "./auth.guard";
     exports: [AuthService, SessionMiddleware],
 })
 
-export class AuthModule{}
+export class AuthModule implements NestModule{
+    configure(consumer: MiddlewareConsumer){
+        consumer.apply(SessionMiddleware).forRoutes("*");
+    }
+}

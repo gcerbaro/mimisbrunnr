@@ -25,7 +25,7 @@ export class AuthService {
         const user = await this.userService.login(email, password);
         session.loginDate = new Date();
 
-        res.cookie(Config.cookies.userId.name, {
+        res.cookie(Config.cookies.userId.name, user.id, {
             path: cookie.path,
             domain: cookie.domain,
             expires: cookie.expires ?? undefined,
