@@ -19,23 +19,10 @@ export class AuthService {
         res: Response,
         { email, password }: UserLoginDto,
     ): Promise<User> {
-        const { session } = req;
-        const { cookie } = session;
-
         const user = await this.userService.login(email, password);
-        session.loginDate = new Date();
 
-        res.cookie(Config.cookies.userId.name, user.id, {
-            path: cookie.path,
-            domain: cookie.domain,
-            expires: cookie.expires ?? undefined,
-            signed: cookie.signed,
-            sameSite: cookie.sameSite,
-            maxAge: cookie.maxAge,
-            secure: IS_PROD,
-            //must be accessible to the client-side for frontend authentication
-            httpOnly: true,
-        });
+        req.session.userId = user.id;
+        req.session.loginDate = new Date();
 
         return user;
     }
