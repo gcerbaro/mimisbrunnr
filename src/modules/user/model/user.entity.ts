@@ -1,7 +1,6 @@
 import { CoreEntity } from '../../core.entity';
 import { Column, Entity } from 'typeorm';
-//import {SaltRounds} from 'env';
-import { verify, hash } from "argon2";
+import { verify, hash, argon2id } from "argon2";
 
 export enum Role {
     USER = "user",
@@ -66,7 +65,13 @@ export class User extends CoreEntity {
     }
 
     static async hashPassword(pwd: string | Buffer): Promise<string> {
-        return await hash(pwd);
+        return await hash(pwd, {
+            type: argon2id,
+            timeCost: 4,
+            parallelism: 4,
+            memoryCost: 65536,
+            hashLength: 64
+        });
     }
 
     static async findByEmailAndPassword(email: string,

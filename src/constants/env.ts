@@ -8,7 +8,4 @@ export const CORS_ORIGIN = process.env.CORS_ORIGIN || `http://localhost:${PORT}`
 export const UID_COOKIE_NAME = "MIMISBRUNNR_UID";
 export const CSRF_HEADER_NAME = "x-csrf-token";
 export const FRONTEND_URL = process.env.FRONTEND_URL;
-
-export const SALT_ROUNDS = parseInt(process.env.SALT_ROUNDS || '10', 10);
-
 export const COOKIE_SECRET = process.env.COOKIE_SECRET;
