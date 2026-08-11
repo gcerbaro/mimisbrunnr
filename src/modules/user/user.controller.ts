@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, Param, ParseUUIDPipe, Patch, Post } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpCode, Param, ParseUUIDPipe, Patch, Post } from "@nestjs/common";
 import { UserService } from "./user.service";
 import { UserCreateDTO } from "./dtos/create-user.dto";
 import { UserDTO } from "./dtos/user.dto";
@@ -25,12 +25,14 @@ export class UserController {
     }
 
     @Get()
+    @HttpCode(200)
     @Public()
     async getAll(){
-        return this.userService.getAll()
+        return this.userService.getAll();
     }
 
     @Get(':id')
+    @HttpCode(200)
     async getOne(@Param('id', ParseUUIDPipe) id: string) {
         return this.userService.getById(id);
     }
@@ -42,7 +44,7 @@ export class UserController {
 
     @Patch(':id')
     @Authorize(Role.ADMIN)
-    updateByAdmin(
+    async updateByAdmin(
         @LoggedUser()
         admin: User,
         @Param('id', ParseUUIDPipe) userId: string,
@@ -50,5 +52,17 @@ export class UserController {
     ) {
         return this.userService.updateByAdmin(admin, userId, updateDto);
     }
+/* 
+    @Delete(':id')
+    async deleteUser(
+        @LoggedUser() admin: User,
+        @Param('id', ParseUUIDPipe) userId: string,
+    ){
+        return this.userService.delete();
+    }
 
+    @Delete(':id')
+    async deleteMe(@LoggedUser() user: User){
+        return this.delete(user);
+    } */
 }

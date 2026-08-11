@@ -5,6 +5,10 @@ import { UserCreateDTO } from './dtos/create-user.dto';
 import { UserUpdateDTO } from './dtos/update-user.dto';
 import { InvalidCredentialsError } from './errors/invalid-credentials.error';
 import { UserInternalUpdateDto } from './dtos/user-internal-updates.dto';
+import { LogService } from '../log/log.service';
+import { Log, LogAction, LogLevel, LogTarget } from '../log/models/log.entity';
+import { LogCreateDTO } from '../log/dtos/log-create.dto';
+import { log } from 'console';
 
 /* const ROLE_NAME_MAP = new Map<Role, string>([
     [Role.ADMIN, 'Admin'],
@@ -17,6 +21,7 @@ export class UserService {
 
     constructor(
         private readonly ds: DataSource,
+        private readonly logService: LogService
     ) { }
 
     async register(userDTO: UserCreateDTO): Promise<User> {

@@ -4,6 +4,7 @@ import { UserModule } from './modules/user/user.module';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { AuthModule } from './modules/auth/auth.module';
+import { LogModule } from './modules/log/log.module';
 
 @Module({
   imports: [
@@ -15,7 +16,8 @@ import { AuthModule } from './modules/auth/auth.module';
     }),
     EventEmitterModule.forRoot(),
     UserModule,
-    AuthModule
+    AuthModule,
+    LogModule
   ],
   //controllers: [AppController],
   providers: [

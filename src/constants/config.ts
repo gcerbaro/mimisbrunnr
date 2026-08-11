@@ -1,4 +1,4 @@
-import { UID_COOKIE_NAME } from "./env";
+import { CSRF_HEADER_NAME, UID_COOKIE_NAME } from "./env";
 
 export const Config = {
   cookies: {
@@ -9,9 +9,9 @@ export const Config = {
       name: UID_COOKIE_NAME,
     },
   },
-/*   csrf: {
+   csrf: {
     headerName: CSRF_HEADER_NAME,
-  }, */
+  }, 
 /*   frontend: {
     accountVerificationPath: '/account/verify',
     passwordResetPath: '/account/reset',

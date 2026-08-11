@@ -3,12 +3,13 @@ import { AuthService } from "./auth.service";
 import { Public } from "./auth.decorator";
 import { UserLoginDto } from "./dtos/user-login.dto";
 import type { Response, Request } from 'express';
+import { CsrfUpdate } from "../csrf/csrf.decorator";
 
 @Controller('auth')
 export class AuthController {
     constructor(private readonly authService: AuthService) { }
 
-    //@CsrfUpdate()
+    @CsrfUpdate()
     @Public()
     @Post('/login')
     @HttpCode(HttpStatus.OK)
@@ -20,7 +21,7 @@ export class AuthController {
         return this.authService.login(req, res, loginDto);
     }
 
-    //@CsrfUpdate()
+    @CsrfUpdate()
     @Public()
     @Delete('/logout')
     @HttpCode(HttpStatus.NO_CONTENT)
