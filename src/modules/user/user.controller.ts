@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, ParseUUIDPipe, Patch, Post } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpCode, Param, ParseUUIDPipe, Patch, Post, Query } from "@nestjs/common";
 import { UserService } from "./user.service";
 import { UserCreateDTO } from "./dtos/create-user.dto";
 import { UserDTO } from "./dtos/user.dto";
@@ -6,6 +6,7 @@ import { UserUpdateDTO } from "./dtos/update-user.dto";
 import { Role, User } from "./model/user.entity";
 import { UserInternalUpdateDto } from "./dtos/user-internal-updates.dto";
 import { Authorize, LoggedUser, Public } from "../auth/auth.decorator";
+import { UserQueryDTO } from "./dtos/user-query.dto";
 
 @Controller('users')
 export class UserController {
@@ -27,8 +28,8 @@ export class UserController {
     @Get()
     @HttpCode(200)
     @Public()
-    async getAll(){
-        return this.userService.getAll();
+    async getAll(@Query() query?: UserQueryDTO){
+        return this.userService.getAll(query);
     }
 
     @Get(':id')

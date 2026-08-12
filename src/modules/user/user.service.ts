@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
-import { DataSource } from 'typeorm';
+import { DataSource, ILike } from 'typeorm';
 import { User, Role } from './model/user.entity';
 import { UserCreateDTO } from './dtos/create-user.dto';
 import { UserUpdateDTO } from './dtos/update-user.dto';
@@ -8,7 +8,8 @@ import { UserInternalUpdateDto } from './dtos/user-internal-updates.dto';
 import { LogService } from '../log/log.service';
 import { Log, LogAction, LogLevel, LogTarget } from '../log/models/log.entity';
 import { LogCreateDTO } from '../log/dtos/log-create.dto';
-import { log } from 'console';
+import { UserQueryDTO } from './dtos/user-query.dto';
+import { Paginated } from '../../utils/pagination/pagination';
 
 /* const ROLE_NAME_MAP = new Map<Role, string>([
     [Role.ADMIN, 'Admin'],
@@ -21,7 +22,7 @@ export class UserService {
 
     constructor(
         private readonly ds: DataSource,
-        private readonly logService: LogService
+        //private readonly logService: LogService
     ) { }
 
     async register(userDTO: UserCreateDTO): Promise<User> {
@@ -126,8 +127,29 @@ export class UserService {
         });
     }
 
-    async getAll(): Promise<User[]>{
-        return await User.find();
+    async getAll(query?: UserQueryDTO): Promise<Paginated<User>>{
+        this.logger.log('Fetching users with filters: ', query);
+
+        const result = await User.findPaginated(
+            {
+                where:{
+                    ...(query?.name &&{
+                        name: ILike(`%${query.name}%`),
+                    }),
+                    ...(query?.role &&{
+                        role: query.role,
+                    })
+                },
+                order:{
+                    createdAt: 'DESC',
+                },
+            },
+            query,
+        );
+
+        this.logger.log(`Found ${result.totalItems} users`, query);
+
+        return result;
     }
 
     async login(email:string, password: string): Promise<User>{
