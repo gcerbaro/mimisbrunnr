@@ -1,4 +1,4 @@
-import { Entity } from "typeorm";
+import { Column, Entity } from "typeorm";
 import { CoreEntity } from "../../core.entity";
 
 export enum Theme{
@@ -8,8 +8,21 @@ export enum Theme{
 
 @Entity()
 export class UserPreferences extends CoreEntity{
+    @Column({
+        type:'simple-enum',
+        enum: Theme,
+        default: Theme.LIGHT 
+    })
     theme: Theme;
     //language: string;
-    dafault_volume: number;
+
+    @Column({
+        type:'integer',
+    })
+    default_volume: number;
+
+    @Column({
+        type: 'text',
+    })
     userId: string;
 }

@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, forwardRef, Inject, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { DataSource, ILike } from 'typeorm';
 import { User, Role } from './model/user.entity';
 import { UserCreateDTO } from './dtos/create-user.dto';
@@ -14,6 +14,7 @@ import { UserPreferences } from './model/userpreferences.entity';
 import { UserPreferencesDTO } from './dtos/userpreferences.dto';
 import { CreateUserPreferencesDTO } from './dtos/create-userpreferences.dto';
 import { UpdateUserPreferencesDTO } from './dtos/update-userpreferences.dto';
+import { UserDeactivateDTO } from './dtos/deactivat-user.dto';
 
 /* const ROLE_NAME_MAP = new Map<Role, string>([
     [Role.ADMIN, 'Admin'],
@@ -26,7 +27,8 @@ export class UserService {
 
     constructor(
         private readonly ds: DataSource,
-        //private readonly logService: LogService
+        @Inject(forwardRef(()=> LogService))
+        private readonly logService: LogService
     ) { }
 
     async register(userDTO: UserCreateDTO): Promise<User> {
@@ -47,21 +49,36 @@ export class UserService {
         await User.save(user);
         this.logger.log(`User ${user.id} registered`);
 
-        this.setPreferences(user);
+        await this.setPreferences(user.id);
         this.logger.log(`Default preferences for user ${user.id} are set`);
 
         return user;
     }
 
-    async setPreferences(user: User): Promise<UserPreferences>{
+    async setPreferences(userId: User['id']): Promise<UserPreferences>{
         const defaultPref= new CreateUserPreferencesDTO();
 
         const userPreferences = UserPreferences.create({
             ...defaultPref,
-            userId: user.id,
+            userId: userId,
         });
 
-        return userPreferences;
+        return userPreferences.save();
+    }
+
+    async getPreferences():Promise<UserPreferences[]>{
+        const preferences = await UserPreferences.find();
+
+        return preferences;
+    }
+    async getOnePreference(userId: User['id']): Promise<UserPreferences>{
+        const preferences = await UserPreferences.findOneOrFail({
+            where:{
+                userId: userId,
+            },
+        });
+
+        return preferences;
     }
 
     async update(user: User, updates: UserUpdateDTO): Promise<User> {
@@ -208,5 +225,17 @@ export class UserService {
         this.logger.log(`User ${user.id} logged in`);
 
         return user;
+    }
+
+    async deactivate(user: User, dto: UserDeactivateDTO): Promise<void>{
+        this.logger.log(`Deactivating user ${user.id}`);
+
+        await this.ds.transaction(async (manager)=>{
+            if(!(await user.comparePassword(dto.currentPassword))){
+                this.logger.warn(`Invalid password confirmation during deactivation of user ${user.id}`);
+                throw new InvalidCredentialsError();
+            }
+            await manager.softRemove(user);
+        });
     }
 }
