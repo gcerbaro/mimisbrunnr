@@ -10,6 +10,10 @@ import { Log, LogAction, LogLevel, LogTarget } from '../log/models/log.entity';
 import { LogCreateDTO } from '../log/dtos/log-create.dto';
 import { UserQueryDTO } from './dtos/user-query.dto';
 import { Paginated } from '../../utils/pagination/pagination';
+import { UserPreferences } from './model/userpreferences.entity';
+import { UserPreferencesDTO } from './dtos/userpreferences.dto';
+import { CreateUserPreferencesDTO } from './dtos/create-userpreferences.dto';
+import { UpdateUserPreferencesDTO } from './dtos/update-userpreferences.dto';
 
 /* const ROLE_NAME_MAP = new Map<Role, string>([
     [Role.ADMIN, 'Admin'],
@@ -43,7 +47,21 @@ export class UserService {
         await User.save(user);
         this.logger.log(`User ${user.id} registered`);
 
+        this.setPreferences(user);
+        this.logger.log(`Default preferences for user ${user.id} are set`);
+
         return user;
+    }
+
+    async setPreferences(user: User): Promise<UserPreferences>{
+        const defaultPref= new CreateUserPreferencesDTO();
+
+        const userPreferences = UserPreferences.create({
+            ...defaultPref,
+            userId: user.id,
+        });
+
+        return userPreferences;
     }
 
     async update(user: User, updates: UserUpdateDTO): Promise<User> {
@@ -117,6 +135,32 @@ export class UserService {
         this.logger.log(`Role of user ${userId} updated from ${oldRole} to ${user.role}`);
 
         return user;
+    }
+
+    async updateUserPreferences(
+        user: User,
+        updates: UpdateUserPreferencesDTO): Promise<UserPreferences>{
+        this.logger.log(`Updating preferences of user ${user.id}`);
+
+        const preferences = await UserPreferences.findOneOrFail({
+            where: {
+                userId: user.id
+            },
+        });
+
+        UserPreferences.merge(preferences, {
+            ...updates
+        });
+
+        await UserPreferences.save(preferences);
+        this.logger.log(`Preferences of user ${user.id} updated`);
+
+        return preferences;
+    }
+
+    async resetDefaultPreferences(user: User): Promise<UserPreferences>{
+        const defaultPref = new CreateUserPreferencesDTO();
+        return this.updateUserPreferences(user, defaultPref);
     }
 
     async getById(userId: User['id']): Promise<User>{

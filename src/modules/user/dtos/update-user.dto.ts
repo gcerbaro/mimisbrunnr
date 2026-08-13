@@ -4,12 +4,13 @@ import {IsNotEmpty, IsOptional, ValidateIf} from 'class-validator';
 import { ApiProperty, OmitType } from '@nestjs/swagger';
 
 export class UserUpdateDTO extends PartialType(
-	OmitType(UserCreateDTO, ['name', 'email', 'birthday'])
+	OmitType(UserCreateDTO, ['name', 'email', 'birthday'] as const), 
 ){	
 	@IsOptional()
 	profilePicture: string;
 
 	@IsNotEmpty()
+	//Only requires pwd if the user is updating their email or pwd
 	@ValidateIf((dto: UserCreateDTO) => !!dto.password)
 	@ApiProperty({example: 'ABCdef123'})
 	currentPassword?: string;
