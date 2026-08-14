@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, HttpCode, HttpStatus, Post, Req, Res } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { Public } from "./auth.decorator";
-import { UserLoginDto } from "./dtos/user-login.dto";
+import { UserLoginDTO } from "./dtos/user-login.dto";
 import type { Response, Request } from 'express';
 import { CsrfUpdate } from "../csrf/csrf.decorator";
 
@@ -16,7 +16,7 @@ export class AuthController {
     async login(
         @Req() req: Request,
         @Res({ passthrough: true }) res: Response,
-        @Body() loginDto: UserLoginDto,
+        @Body() loginDto: UserLoginDTO,
     ) {
         return this.authService.login(req, res, loginDto);
     }

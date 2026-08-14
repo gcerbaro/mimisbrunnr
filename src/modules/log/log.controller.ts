@@ -5,7 +5,7 @@ import { Authorize } from "../auth/auth.decorator";
 import { Role } from "../user/model/user.entity";
 
 @Controller('/logs')
-@Authorize(Role.ADMIN)
+//@Authorize(Role.ADMIN)
 export class LogController{
     constructor(private readonly logService: LogService){}
 

@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { UserLoginDto } from "./dtos/user-login.dto";
+import { UserLoginDTO } from "./dtos/user-login.dto";
 import { UserService } from "../user/user.service";
 import { EventEmitter2 } from "@nestjs/event-emitter";
 import { User } from "../user/model/user.entity";
@@ -17,9 +17,9 @@ export class AuthService {
     async login(
         req: Request,
         res: Response,
-        { email, password }: UserLoginDto,
+        dto: UserLoginDTO,
     ): Promise<User> {
-        const user = await this.userService.login(email, password);
+        const user = await this.userService.login(dto);
 
         req.session.userId = user.id;
         req.session.loginDate = new Date();

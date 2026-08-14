@@ -1,5 +1,5 @@
 import { BadRequestException, forwardRef, Inject, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
-import { DataSource, ILike } from 'typeorm';
+import { DataSource, EntityManager, ILike } from 'typeorm';
 import { User, Role } from './model/user.entity';
 import { UserCreateDTO } from './dtos/create-user.dto';
 import { UserUpdateDTO } from './dtos/update-user.dto';
@@ -11,15 +11,10 @@ import { LogCreateDTO } from '../log/dtos/log-create.dto';
 import { UserQueryDTO } from './dtos/user-query.dto';
 import { Paginated } from '../../utils/pagination/pagination';
 import { UserPreferences } from './model/userpreferences.entity';
-import { UserPreferencesDTO } from './dtos/userpreferences.dto';
 import { CreateUserPreferencesDTO } from './dtos/create-userpreferences.dto';
 import { UpdateUserPreferencesDTO } from './dtos/update-userpreferences.dto';
 import { UserDeactivateDTO } from './dtos/deactivat-user.dto';
-
-/* const ROLE_NAME_MAP = new Map<Role, string>([
-    [Role.ADMIN, 'Admin'],
-    [Role.USER, 'User']
-]); */
+import { UserLoginDTO } from '../auth/dtos/user-login.dto';
 
 @Injectable()
 export class UserService {
@@ -27,53 +22,69 @@ export class UserService {
 
     constructor(
         private readonly ds: DataSource,
-        @Inject(forwardRef(()=> LogService))
+        @Inject(forwardRef(() => LogService))
         private readonly logService: LogService
     ) { }
 
     async register(userDTO: UserCreateDTO): Promise<User> {
         this.logger.log('Registering new user');
 
-        const {
-            password: rawPassword,
-            ...userData
-        } = userDTO;
+        return this.ds.transaction(async (manager) => {
+            const {
+                password: rawPassword,
+                ...userData
+            } = userDTO;
 
-        const password = await User.hashPassword(rawPassword);
-        const user = User.create({
-            ...userData,
-            password,
-            role: Role.USER,
+            const password = await User.hashPassword(rawPassword);
+            const user = User.create({
+                ...userData,
+                password,
+                role: Role.USER,
+            });
+
+            await manager.save(user);
+            this.logger.log(`User ${user.id} registered`);
+
+            const auditLog = new LogCreateDTO({
+                actorName: "SYSTEM",
+                action: LogAction.CREATE_USER,
+                targetType: LogTarget.USER,
+                level: LogLevel.INFO,
+                targetId: user.id
+            });
+
+            const [preferencesSet, auditedLog] = await Promise.all([
+                this.setPreferences(user.id, manager),
+                this.logService.create(auditLog, manager)
+            ]);
+
+            console.log("AUDIT RESULT:", auditedLog);
+            this.logger.log(`Default preferences for user ${user.id} are set`);
+
+            return user;
         });
-
-        await User.save(user);
-        this.logger.log(`User ${user.id} registered`);
-
-        await this.setPreferences(user.id);
-        this.logger.log(`Default preferences for user ${user.id} are set`);
-
-        return user;
     }
 
-    async setPreferences(userId: User['id']): Promise<UserPreferences>{
-        const defaultPref= new CreateUserPreferencesDTO();
-
+    async setPreferences(userId: User['id'], manager?: EntityManager): Promise<UserPreferences> {
+        const defaultPref = new CreateUserPreferencesDTO();
         const userPreferences = UserPreferences.create({
             ...defaultPref,
             userId: userId,
         });
 
+        if(manager){
+            return manager.save(userPreferences);
+        }
+
         return userPreferences.save();
     }
 
-    async getPreferences():Promise<UserPreferences[]>{
-        const preferences = await UserPreferences.find();
-
-        return preferences;
+    async getPreferences(): Promise<UserPreferences[]> {
+        return await UserPreferences.find();
     }
-    async getOnePreference(userId: User['id']): Promise<UserPreferences>{
+    async getOnePreference(userId: User['id']): Promise<UserPreferences> {
         const preferences = await UserPreferences.findOneOrFail({
-            where:{
+            where: {
                 userId: userId,
             },
         });
@@ -99,7 +110,7 @@ export class UserService {
                 this.logger.warn(`Invalid password confirmation of user ${user.id}`);
                 throw new InvalidCredentialsError();
             }
-        } else if(currentPassword){
+        } else if (currentPassword) {
             throw new BadRequestException();
         }
 
@@ -122,16 +133,16 @@ export class UserService {
         admin: User,
         userId: User['id'],
         updates: UserInternalUpdateDto,
-    ): Promise<User>{
+    ): Promise<User> {
         this.logger.log(`Internally updating user ${userId}`);
 
         //ensure admin has the correct role
-        if(! (admin.role === Role.ADMIN)){
+        if (!(admin.role === Role.ADMIN)) {
             this.logger.log(`User ${admin.id} has no permission to update another user`)
             throw new UnauthorizedException();
         }
         //admin cannot update their own role
-        if(admin.id === userId){
+        if (admin.id === userId) {
             this.logger.warn(`Admin ${admin.id} cannot update own role`);
             //throw new exception
         }
@@ -156,7 +167,7 @@ export class UserService {
 
     async updateUserPreferences(
         user: User,
-        updates: UpdateUserPreferencesDTO): Promise<UserPreferences>{
+        updates: UpdateUserPreferencesDTO): Promise<UserPreferences> {
         this.logger.log(`Updating preferences of user ${user.id}`);
 
         const preferences = await UserPreferences.findOneOrFail({
@@ -175,12 +186,12 @@ export class UserService {
         return preferences;
     }
 
-    async resetDefaultPreferences(user: User): Promise<UserPreferences>{
+    async resetDefaultPreferences(user: User): Promise<UserPreferences> {
         const defaultPref = new CreateUserPreferencesDTO();
         return this.updateUserPreferences(user, defaultPref);
     }
 
-    async getById(userId: User['id']): Promise<User>{
+    async getById(userId: User['id']): Promise<User> {
         return await User.findOneOrFail({
             where: {
                 id: userId,
@@ -188,20 +199,20 @@ export class UserService {
         });
     }
 
-    async getAll(query?: UserQueryDTO): Promise<Paginated<User>>{
+    async getAll(query?: UserQueryDTO): Promise<Paginated<User>> {
         this.logger.log('Fetching users with filters: ', query);
 
         const result = await User.findPaginated(
             {
-                where:{
-                    ...(query?.name &&{
+                where: {
+                    ...(query?.name && {
                         name: ILike(`%${query.name}%`),
                     }),
-                    ...(query?.role &&{
+                    ...(query?.role && {
                         role: query.role,
                     })
                 },
-                order:{
+                order: {
                     createdAt: 'DESC',
                 },
             },
@@ -213,12 +224,12 @@ export class UserService {
         return result;
     }
 
-    async login(email:string, password: string): Promise<User>{
+    async login(dto: UserLoginDTO): Promise<User> {
         this.logger.log('User login attempt');
 
-        const user = await User.findByEmailAndPassword(email, password, true);
+        const user = await User.findByEmailAndPassword(dto.email, dto.password, true);
 
-        if(!user){
+        if (!user) {
             throw new InvalidCredentialsError();
         }
 
@@ -227,11 +238,11 @@ export class UserService {
         return user;
     }
 
-    async deactivate(user: User, dto: UserDeactivateDTO): Promise<void>{
+    async deactivate(user: User, dto: UserDeactivateDTO): Promise<void> {
         this.logger.log(`Deactivating user ${user.id}`);
 
-        await this.ds.transaction(async (manager)=>{
-            if(!(await user.comparePassword(dto.currentPassword))){
+        await this.ds.transaction(async (manager) => {
+            if (!(await user.comparePassword(dto.currentPassword))) {
                 this.logger.warn(`Invalid password confirmation during deactivation of user ${user.id}`);
                 throw new InvalidCredentialsError();
             }

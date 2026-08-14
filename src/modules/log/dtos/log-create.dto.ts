@@ -2,9 +2,13 @@ import { IsDate, IsEnum, IsIP, IsNotEmpty, IsObject, IsOptional, IsUUID } from "
 import { LogAction, LogLevel, LogTarget } from "../models/log.entity";
 import { Type } from "class-transformer";
 
-export class LogCreateDTO{
+export class LogCreateDTO {
     @IsUUID('4')
-    actorId: string;
+    @IsOptional()
+    actorId?: string;
+
+    @IsNotEmpty()
+    actorName: string;
 
     @IsEnum(LogAction)
     @IsNotEmpty()
@@ -15,9 +19,9 @@ export class LogCreateDTO{
     target: LogTarget;
 
     @IsUUID('4')
-    targetId: string;
+    targetId?: string;
 
-    @Type(()=>Date)
+    @Type(() => Date)
     @IsDate()
     @IsNotEmpty()
     timestamp: Date;
@@ -33,4 +37,19 @@ export class LogCreateDTO{
     @IsObject()
     @IsOptional()
     metadata?: Record<string, unknown>;
+
+    constructor(data: {
+        actorName: string;
+        action: LogAction;
+        targetType: LogTarget;
+        level: LogLevel;
+        targetId?: string;
+        actorId?: string;
+        ipAddress?: string;
+        metadata?: Record<string, unknown>;
+    }) {
+        Object.assign(this, data);
+        this.timestamp = new Date();
+    }
+
 }
