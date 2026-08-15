@@ -4,17 +4,16 @@ import {NextFunction, Request, RequestHandler, Response} from 'express';
 import { Injectable, NestMiddleware } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import {Session} from './model/session.entity';
-//import {TypeormStore} from 'connect-typeorm';
 import type { Repository } from "typeorm";
 import session from 'express-session';
 import ms from 'ms';
+import { TypeOrmStore } from '../../utils/typeormstore/typeormstore';
 
 @Injectable()
 export class SessionMiddleware implements NestMiddleware {
   private readonly session: RequestHandler;
-
   constructor(
-    //@InjectRepository(Session) sessionRepository: Repository<Session>,
+    @InjectRepository(Session) sessionRepository: Repository<Session>,
   ) {
     this.session = session({
       secret: COOKIE_SECRET,
@@ -29,8 +28,7 @@ export class SessionMiddleware implements NestMiddleware {
         secure: IS_PROD,
         signed: true,
       },
-      //seek more recent alternative
-      //store: new TypeormStore().connect(sessionRepository),
+      store: new TypeOrmStore({ repository: sessionRepository }),
     });
   }
 

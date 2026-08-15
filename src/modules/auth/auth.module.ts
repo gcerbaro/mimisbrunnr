@@ -1,4 +1,4 @@
-import { Module, Session, NestModule, MiddlewareConsumer } from "@nestjs/common";
+import { Module, NestModule, MiddlewareConsumer } from "@nestjs/common";
 import { APP_GUARD } from "@nestjs/core";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { SessionMiddleware } from "./session.middleware";
@@ -6,6 +6,7 @@ import { AuthController } from "./auth.controller";
 import { UserModule } from "../user/user.module";
 import { AuthService } from "./auth.service";
 import { AuthGuard } from "./auth.guard";
+import { Session } from "./model/session.entity";
 
 @Module({
     imports:[TypeOrmModule.forFeature([Session]), UserModule],

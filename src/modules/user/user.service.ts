@@ -58,7 +58,6 @@ export class UserService {
                 this.logService.create(auditLog, manager)
             ]);
 
-            console.log("AUDIT RESULT:", auditedLog);
             this.logger.log(`Default preferences for user ${user.id} are set`);
 
             return user;

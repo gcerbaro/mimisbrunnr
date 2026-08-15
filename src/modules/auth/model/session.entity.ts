@@ -5,7 +5,7 @@ export class Session {
     @PrimaryColumn('varchar', { length: 255 })
     id = ''
     @Index()
-    @Column({type: 'date'})
+    @Column({type: 'datetime'})
     expiresAt: Date;
     @DeleteDateColumn()
     revokedAt: Date;
