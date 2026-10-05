@@ -5,9 +5,23 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { AuthModule } from './modules/auth/auth.module';
 import { LogModule } from './modules/log/log.module';
+import * as path from 'path';
+import {I18nModule} from 'nestjs-i18n';
 
 @Module({
   imports: [
+    I18nModule.forRoot({
+      fallbackLanguage:'en',
+      loaderOptions:{
+        path: path.join(__dirname, '/i18n/'),
+        watch:true,
+      },
+      //resolvers:[
+      //  {use: QueryResolver, options:['lang']},
+      //  AcceptLanguageResolver,
+      //]
+    })
+    ,
     TypeOrmModule.forRoot({
       type: 'better-sqlite3',
       database: 'database.sqlite3',

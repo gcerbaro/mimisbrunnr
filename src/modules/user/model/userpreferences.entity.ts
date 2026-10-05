@@ -6,6 +6,16 @@ export enum Theme{
     LIGHT="light",
 }
 
+export enum Language{
+    EN="en-US",
+    PT="pt-BR",
+    //ES="es",
+    //FR="fr",
+    //IT="it",
+    //DE="de",
+    //VEC="vec"
+}
+
 @Entity()
 export class UserPreferences extends CoreEntity{
     @Column({
@@ -14,7 +24,13 @@ export class UserPreferences extends CoreEntity{
         default: Theme.LIGHT 
     })
     theme: Theme;
-    //language: string;
+
+    @Column({
+        type:'simple-enum',
+        enum:Language,
+        default: Language.EN
+    })
+    language: Language;
 
     @Column({
         type:'integer',
